@@ -83,6 +83,8 @@ exports.Unscrambler = Unscrambler;
 (function runTests() {
     var assert = require('assert');
 
+    console.log('Run several tests');
+
     let dict = ['ja','jaja','nein','evtl'];
     let UnscramblerDefault = new Unscrambler(dict);
     assert.deepEqual(
@@ -130,4 +132,6 @@ exports.Unscrambler = Unscrambler;
         let results = new Unscrambler(dict_distinct).unscrambleSentence(randSentence[1])
         assert.deepEqual(results,[randSentence[0]]);
     }
+
+    console.log('tests successful');
 }());
