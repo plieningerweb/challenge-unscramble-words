@@ -31,7 +31,15 @@ class Unscrambler {
   initializeDict(dict) {
     let dictHashTable = {};
     dict.forEach(word => {
-      dictHashTable[this.hashWord(word)] = word;
+	  //check if key exists already
+	  let hash = this.hashWord(word);
+	  if(hash in dictHashTable) {
+		//add word to possible results of this hash
+      	dictHashTable[hash].push(word);
+	  } else {
+		//first time for this hash, add list with one item
+      	dictHashTable[hash] = [word];
+	  }
     })
     return dictHashTable;
   }
@@ -42,8 +50,7 @@ class Unscrambler {
   unscrambleWord(scrambled) {
     let hash = this.hashWord(scrambled);
     if(hash in this.dictHashTable) {
-      //always return array
-      return [this.dictHashTable[hash]];
+      return this.dictHashTable[hash];
     } else {
       return [];
     }
@@ -85,12 +92,26 @@ exports.Unscrambler = Unscrambler;
 
     console.log('Run several tests');
 
-    let dict = ['ja','jaja','nein','evtl'];
+    let dict = ['ja','jaja','nein','evtl','erik','rike'];
     let UnscramblerDefault = new Unscrambler(dict);
+
     assert.deepEqual(
       UnscramblerDefault.unscrambleSentence('jaja'),
       [['ja','ja'],['jaja']]
     );
+
+	//all possible results of one word
+	assert.deepEqual(
+	  UnscramblerDefault.unscrambleWord('iker'),
+	  ['erik', 'rike']
+	);
+
+	//two possible sentences where one word has multiple options
+    assert.deepEqual(
+      UnscramblerDefault.unscrambleSentence('ajikrevetl'),
+	  [ [ 'ja', 'erik', 'evtl' ], [ 'ja', 'rike', 'evtl' ] ]
+    );
+
 
     assert.deepEqual(
       UnscramblerDefault.unscrambleSentence('evtlnee'),
