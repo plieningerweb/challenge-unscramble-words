@@ -1,10 +1,9 @@
 "use strict";
 try {
- var debug = require('debug')('worker');
-}
-catch (e) {
- //var debug = function() {console.log.apply(console,arguments)};
- var debug = function(){};
+  var debug = require('debug')('worker');
+} catch (e) {
+  //var debug = function() {console.log.apply(console,arguments)};
+  var debug = function() {};
 }
 
 /* class Unscrambler
@@ -31,15 +30,15 @@ class Unscrambler {
   initializeDict(dict) {
     let dictHashTable = {};
     dict.forEach(word => {
-	  //check if key exists already
-	  let hash = this.hashWord(word);
-	  if(hash in dictHashTable) {
-		//add word to possible results of this hash
-      	dictHashTable[hash].push(word);
-	  } else {
-		//first time for this hash, add list with one item
-      	dictHashTable[hash] = [word];
-	  }
+      //check if key exists already
+      let hash = this.hashWord(word);
+      if (hash in dictHashTable) {
+        //add word to possible results of this hash
+        dictHashTable[hash].push(word);
+      } else {
+        //first time for this hash, add list with one item
+        dictHashTable[hash] = [word];
+      }
     })
     return dictHashTable;
   }
@@ -49,7 +48,7 @@ class Unscrambler {
     in a dictionary of possible words */
   unscrambleWord(scrambled) {
     let hash = this.hashWord(scrambled);
-    if(hash in this.dictHashTable) {
+    if (hash in this.dictHashTable) {
       return this.dictHashTable[hash];
     } else {
       return [];
@@ -60,16 +59,16 @@ class Unscrambler {
   unscrambleSentence(sentence) {
     //loop over all possible words with different lengths
     let possibleSentences = [];
-    for(var i=1;i<=sentence.length;i++) {
-      let word = sentence.substr(0,i);
-      debug('try word: ',word);
+    for (var i = 1; i <= sentence.length; i++) {
+      let word = sentence.substr(0, i);
+      debug('try word: ', word);
       let possibleWords = this.unscrambleWord(word);
       possibleWords.forEach(word => {
         let endOfSentence = sentence.substr(i);
         //list of possible sentence ends
         let possibleSentenceEnds = this.unscrambleSentence(endOfSentence);
-        debug('possible sentence ends are: ',possibleSentenceEnds);
-        if(possibleSentenceEnds.length > 0) {
+        debug('possible sentence ends are: ', possibleSentenceEnds);
+        if (possibleSentenceEnds.length > 0) {
           possibleSentenceEnds.forEach(end => {
             //create new possible sentence out of word and possible ends
             possibleSentences.push([word].concat(end));
@@ -88,71 +87,81 @@ exports.Unscrambler = Unscrambler;
 
 
 (function runTests() {
-    var assert = require('assert');
+  var assert = require('assert');
 
-    console.log('Run several tests');
+  console.log('Run several tests');
 
-    let dict = ['ja','jaja','nein','evtl','erik','rike'];
-    let UnscramblerDefault = new Unscrambler(dict);
+  let dict = ['ja', 'jaja', 'nein', 'evtl', 'erik', 'rike'];
+  let UnscramblerDefault = new Unscrambler(dict);
 
-    assert.deepEqual(
-      UnscramblerDefault.unscrambleSentence('jaja'),
-      [['ja','ja'],['jaja']]
-    );
+  assert.deepEqual(
+    UnscramblerDefault.unscrambleSentence('jaja'), [
+      ['ja', 'ja'],
+      ['jaja']
+    ]
+  );
 
-	//all possible results of one word
-	assert.deepEqual(
-	  UnscramblerDefault.unscrambleWord('iker'),
-	  ['erik', 'rike']
-	);
+  //all possible results of one word
+  assert.deepEqual(
+    UnscramblerDefault.unscrambleWord('iker'), ['erik', 'rike']
+  );
 
-	//two possible sentences where one word has multiple options
-    assert.deepEqual(
-      UnscramblerDefault.unscrambleSentence('ajikrevetl'),
-	  [ [ 'ja', 'erik', 'evtl' ], [ 'ja', 'rike', 'evtl' ] ]
-    );
+  //two possible sentences where one word has multiple options
+  assert.deepEqual(
+    UnscramblerDefault.unscrambleSentence('ajikrevetl'), [
+      ['ja', 'erik', 'evtl'],
+      ['ja', 'rike', 'evtl']
+    ]
+  );
 
 
-    assert.deepEqual(
-      UnscramblerDefault.unscrambleSentence('evtlnee'),
-      [['evtl']]
-    );
+  assert.deepEqual(
+    UnscramblerDefault.unscrambleSentence('evtlnee'), [
+      ['evtl']
+    ]
+  );
 
-    assert.deepEqual(
-      UnscramblerDefault.unscrambleSentence('iennaj'),
-      [['nein','ja']]
-    );
+  assert.deepEqual(
+    UnscramblerDefault.unscrambleSentence('iennaj'), [
+      ['nein', 'ja']
+    ]
+  );
 
-    assert.deepEqual(
-      UnscramblerDefault.unscrambleSentence('ajjaaj'),
-      [[ 'ja', 'ja', 'ja' ], [ 'ja', 'jaja' ], [ 'jaja', 'ja' ]]
-    );
+  assert.deepEqual(
+    UnscramblerDefault.unscrambleSentence('ajjaaj'), [
+      ['ja', 'ja', 'ja'],
+      ['ja', 'jaja'],
+      ['jaja', 'ja']
+    ]
+  );
 
-    /* return shuffled array with random order */
-    function shuffle(array) {
-      return array.sort(function() { return 0.5 - Math.random() });
-    }
-    /* return random shuffled sentence */
-    function getRandomScrambledSentence(dict) {
-      let words = shuffle(dict).slice(0,5);
-      let scrambledWords = words.map(word => {
-        //split word into charater array, shuffle them and put back together
-        return shuffle(word.split('')).join('');
-      }).join('');
-      return [words,scrambledWords];
-    }
+  /* return shuffled array with random order */
+  function shuffle(array) {
+    return array.sort(function() {
+      return 0.5 - Math.random()
+    });
+  }
+  /* return random shuffled sentence */
+  function getRandomScrambledSentence(dict) {
+    let words = shuffle(dict).slice(0, 5);
+    let scrambledWords = words.map(word => {
+      //split word into charater array, shuffle them and put back together
+      return shuffle(word.split('')).join('');
+    }).join('');
+    return [words, scrambledWords];
+  }
 
-    let dict_distinct = [
-      'Rom','Wien','Lüneburg','München','Berlin','NY','LA','Beijing',
-      'Sao Paolo','Mexico City','Amsterdam','Südafrika','Frankfurt',
-      'Silicon Valley','Shanghay','Shenzen'
-    ];
-    //run some radom tests
-    for(var i=0;i<100;i++) {
-        let randSentence = getRandomScrambledSentence(dict_distinct);
-        let results = new Unscrambler(dict_distinct).unscrambleSentence(randSentence[1])
-        assert.deepEqual(results,[randSentence[0]]);
-    }
+  let dict_distinct = [
+    'Rom', 'Wien', 'Lüneburg', 'München', 'Berlin', 'NY', 'LA', 'Beijing',
+    'Sao Paolo', 'Mexico City', 'Amsterdam', 'Südafrika', 'Frankfurt',
+    'Silicon Valley', 'Shanghay', 'Shenzen'
+  ];
+  //run some radom tests
+  for (var i = 0; i < 100; i++) {
+    let randSentence = getRandomScrambledSentence(dict_distinct);
+    let results = new Unscrambler(dict_distinct).unscrambleSentence(randSentence[1])
+    assert.deepEqual(results, [randSentence[0]]);
+  }
 
-    console.log('tests successful');
+  console.log('tests successful');
 }());
